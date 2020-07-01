@@ -11,6 +11,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -21,11 +23,14 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  */
 public class MainWindow extends javax.swing.JFrame {
 
+    HashMap<String, State> states;
+
     public MainWindow() {
         initComponents();
         restrictFileChooser();
+        states = new HashMap<>();      
     }
-     
+
     private void restrictFileChooser() {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV files (*.csv)", "csv");
         jfcSelect.setFileFilter(filter);
@@ -61,6 +66,7 @@ public class MainWindow extends javax.swing.JFrame {
         jbClose = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("COVID-19 Isolation Index System");
 
         jLabel1.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
         jLabel1.setText("COVID-19 Isolation Index System");
@@ -96,11 +102,13 @@ public class MainWindow extends javax.swing.JFrame {
         jLabel6.setText("State:");
 
         jcbState.setMaximumRowCount(26);
+        jcbState.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select" }));
 
         jLabel7.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
         jLabel7.setText("City:");
 
         jcbCity.setMaximumRowCount(26);
+        jcbCity.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select" }));
 
         jLabel8.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
         jLabel8.setText("Isolation Index (%)");
@@ -183,7 +191,9 @@ public class MainWindow extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jbSelect, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGroup(layout.createSequentialGroup()
+                                            .addComponent(jbSelect, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addGap(0, 0, Short.MAX_VALUE))
                                         .addGroup(layout.createSequentialGroup()
                                             .addComponent(jtfNumberStates, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -269,35 +279,66 @@ public class MainWindow extends javax.swing.JFrame {
         int result = jfcSelect.showOpenDialog(this);
         FileReader fileReader;
         BufferedReader bufferedReader;
+        String line;
+        int cityCount = 0;
+
         if (result == JFileChooser.CANCEL_OPTION) {
             return;
         }
-        
+
         ArrayList<String> lines = new ArrayList<>();
         try {
             File file = jfcSelect.getSelectedFile();
             jtfSelectedFile.setText(file.getName());
-            
+
             fileReader = new FileReader(file);
-            bufferedReader = new BufferedReader(fileReader);           
-                                
+            bufferedReader = new BufferedReader(fileReader);
+
         } catch (FileNotFoundException ex) {
             JOptionPane.showMessageDialog(this, "File not found/invalid", "Error", JOptionPane.ERROR);
             return;
         }
         
-        try{
-            String line = bufferedReader.readLine();
-            String[] words = line.split(",");
-            jcbState.addItem(words[0]);
+       
+
+        try {       
             
-            
-        } catch (IOException ex){
-            
+            while ((line = bufferedReader.readLine()) != null) {
+
+                String[] words = line.split(",");
+                // 0- Estado, 1- Cidade, 2- Porcentagem, 3- Data
+                if (!states.keySet().contains(words[0])) {
+                    states.put(words[0], new State(words[0]));
+                    jcbState.addItem(words[0]);
+                }
+                
+                for (State state : states.values()) {
+                    if (!state.hasCity(words[1])) {
+                        City city = new City(words[1]);
+                        city.addIndex(words[3], Float.parseFloat(words[2]));
+                        state.addCity(new City(words[1]));
+                        cityCount++;
+                    } else {
+                        state.getCity(words[1]).addIndex(words[3], Float.parseFloat(words[2]));
+                    }
+                }              
+            }
+
+        } catch (IOException ex) {
+            System.out.println("aaaaaaaaaaaaa");
+            return;
         }
         
+        jtfSelectedFile.setEnabled(true);
+        jtfNumberStates.setEnabled(true);
+        jtfNumberStates.setText(Integer.toString(states.size()));
+        jtfNumberCities.setEnabled(true);
+        jtfNumberCities.setText(Integer.toString(cityCount));
     }//GEN-LAST:event_jbSelectActionPerformed
 
+    
+
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
