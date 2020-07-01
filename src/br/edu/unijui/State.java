@@ -47,5 +47,9 @@ public class State {
         return cities.size();
     }
     
+    public Collection<String> getCityNames(){
+        return cities.keySet();
+    }
+    
     
 }

@@ -5,12 +5,15 @@
  */
 package br.edu.unijui;
 
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JFileChooser;
@@ -24,11 +27,13 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class MainWindow extends javax.swing.JFrame {
 
     HashMap<String, State> states;
+    String selectedItem = "Select";
 
     public MainWindow() {
         initComponents();
         restrictFileChooser();
-        states = new HashMap<>();      
+        states = new HashMap<>();
+        addItemChangeListener();
     }
 
     private void restrictFileChooser() {
@@ -103,6 +108,11 @@ public class MainWindow extends javax.swing.JFrame {
 
         jcbState.setMaximumRowCount(26);
         jcbState.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select" }));
+        jcbState.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jcbStateActionPerformed(evt);
+            }
+        });
 
         jLabel7.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
         jLabel7.setText("City:");
@@ -312,7 +322,7 @@ public class MainWindow extends javax.swing.JFrame {
                     jcbState.addItem(words[0]);
                 }
                 
-                for (State state : states.values()) {
+                State state = states.get(words[0]);
                     if (!state.hasCity(words[1])) {
                         City city = new City(words[1]);
                         city.addIndex(words[3], Float.parseFloat(words[2]));
@@ -321,7 +331,7 @@ public class MainWindow extends javax.swing.JFrame {
                     } else {
                         state.getCity(words[1]).addIndex(words[3], Float.parseFloat(words[2]));
                     }
-                }              
+                              
             }
 
         } catch (IOException ex) {
@@ -336,8 +346,65 @@ public class MainWindow extends javax.swing.JFrame {
         jtfNumberCities.setText(Integer.toString(cityCount));
     }//GEN-LAST:event_jbSelectActionPerformed
 
-    
+    private void jcbStateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcbStateActionPerformed
+        
+    }//GEN-LAST:event_jcbStateActionPerformed
 
+    private void addItemChangeListener(){
+        jcbState.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent arg0) {
+               if(!((String)jcbState.getSelectedItem()).equals(selectedItem)){
+                   selectedItem = (String)jcbState.getSelectedItem();
+                   displayCities();
+                   System.out.println(selectedItem);
+               }                                               
+            }
+        });
+    }
+    
+    private void displayCities(){
+       jcbCity.removeAllItems();
+       jcbCity.addItem("Select");
+       for(String name : states.get(selectedItem).getCityNames()){
+           jcbCity.addItem(name);
+       }
+       
+    }
+    
+    /*
+    public static void shellSort(Integer[] nums) {
+        int gap = 1;
+        int n = nums.length;
+        boolean hasSwap = false;
+
+        while (gap < n) {
+            gap = gap * 3 + 1;
+        }
+
+        gap = gap / 3;
+        int temp, j;
+
+        while (gap > 0) {
+            for (int i = gap; i < n; i++) {
+                temp = nums[i];
+                j = i;
+                while (j >= gap && nums[j - gap] > temp) {
+                    nums[j] = nums[j - gap];
+                    j = j - gap;
+;
+                    hasSwap = true;
+                }
+                nums[j] = temp;
+                if (hasSwap) {                   
+                    hasSwap = false;                    
+                }
+
+            }
+            gap = gap / 2;
+        }     
+    }
+    */
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
