@@ -1,5 +1,6 @@
 package br.edu.unijui;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 
@@ -27,6 +28,14 @@ class City {
     
     public void addIndex(String date, float percentage){
         isolationMap.put(date, percentage);
+    }
+    
+    public String[] getDates(){
+        return isolationMap.keySet().toArray(new String[isolationMap.size()]);
+    }
+    
+    public float getIndex(String date){
+        return isolationMap.get(date);
     }
     
         

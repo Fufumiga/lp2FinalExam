@@ -13,12 +13,15 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 /**
  *
@@ -62,7 +65,7 @@ public class MainWindow extends javax.swing.JFrame {
         jLabel8 = new javax.swing.JLabel();
         jbFind = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        jtIndexes = new javax.swing.JTable();
         jLabel9 = new javax.swing.JLabel();
         jtfHighestIsolation = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
@@ -108,17 +111,14 @@ public class MainWindow extends javax.swing.JFrame {
 
         jcbState.setMaximumRowCount(26);
         jcbState.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select" }));
-        jcbState.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jcbStateActionPerformed(evt);
-            }
-        });
+        jcbState.setEnabled(false);
 
         jLabel7.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
         jLabel7.setText("City:");
 
         jcbCity.setMaximumRowCount(26);
         jcbCity.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select" }));
+        jcbCity.setEnabled(false);
 
         jLabel8.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
         jLabel8.setText("Isolation Index (%)");
@@ -126,9 +126,29 @@ public class MainWindow extends javax.swing.JFrame {
         jbFind.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         jbFind.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/zoom.png"))); // NOI18N
         jbFind.setText("Find");
+        jbFind.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbFindActionPerformed(evt);
+            }
+        });
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        jtIndexes.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
                 {null, null},
                 {null, null},
                 {null, null},
@@ -157,15 +177,15 @@ public class MainWindow extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(jtIndexes);
 
-        jLabel9.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        jLabel9.setText("Highest Isolation:");
+        jLabel9.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        jLabel9.setText("Highest Isolation (Country):");
 
         jtfHighestIsolation.setEnabled(false);
 
-        jLabel10.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        jLabel10.setText("Lowest Isolation");
+        jLabel10.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        jLabel10.setText("Lowest Isolation (Country):");
 
         jtfLowestIsolation.setEnabled(false);
 
@@ -227,14 +247,15 @@ public class MainWindow extends javax.swing.JFrame {
                                     .addComponent(jLabel10)
                                     .addComponent(jLabel9))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jtfLowestIsolation, javax.swing.GroupLayout.DEFAULT_SIZE, 560, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jtfLowestIsolation)
                                     .addComponent(jtfHighestIsolation))
-                                .addGap(18, 18, Short.MAX_VALUE)
-                                .addComponent(jbExport))))
+                                .addGap(374, 374, 374))))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(385, 385, 385)
-                        .addComponent(jbClose)))
+                        .addGap(309, 309, 309)
+                        .addComponent(jbClose)
+                        .addGap(55, 55, 55)
+                        .addComponent(jbExport)))
                 .addContainerGap(42, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -270,15 +291,16 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9)
-                    .addComponent(jtfHighestIsolation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jbExport))
+                    .addComponent(jtfHighestIsolation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel10)
                     .addComponent(jtfLowestIsolation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jbClose)
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jbClose)
+                    .addComponent(jbExport))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
 
         pack();
@@ -308,104 +330,108 @@ public class MainWindow extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "File not found/invalid", "Error", JOptionPane.ERROR);
             return;
         }
-        
-       
 
-        try {       
-            
+        try {
+
             while ((line = bufferedReader.readLine()) != null) {
 
                 String[] words = line.split(",");
                 // 0- Estado, 1- Cidade, 2- Porcentagem, 3- Data
                 if (!states.keySet().contains(words[0])) {
                     states.put(words[0], new State(words[0]));
-                    jcbState.addItem(words[0]);
                 }
-                
+
                 State state = states.get(words[0]);
-                    if (!state.hasCity(words[1])) {
-                        City city = new City(words[1]);
-                        city.addIndex(words[3], Float.parseFloat(words[2]));
-                        state.addCity(new City(words[1]));
-                        cityCount++;
-                    } else {
-                        state.getCity(words[1]).addIndex(words[3], Float.parseFloat(words[2]));
-                    }
-                              
+                if (!state.hasCity(words[1])) {
+                    City city = new City(words[1]);
+                    city.addIndex(words[3], Float.parseFloat(words[2]));
+                    state.addCity(new City(words[1]));
+                    cityCount++;
+                } else {
+                    state.getCity(words[1]).addIndex(words[3], Float.parseFloat(words[2]));
+                }
+
             }
 
         } catch (IOException ex) {
             System.out.println("aaaaaaaaaaaaa");
             return;
         }
-        
+
+        Object[] stateNames = states.keySet().toArray();
+        Arrays.sort(stateNames);
+        for (Object stateName : stateNames) {
+            jcbState.addItem((String)stateName);
+        }
+                
+                
         jtfSelectedFile.setEnabled(true);
         jtfNumberStates.setEnabled(true);
         jtfNumberStates.setText(Integer.toString(states.size()));
         jtfNumberCities.setEnabled(true);
         jtfNumberCities.setText(Integer.toString(cityCount));
+        jcbState.setEnabled(true);
+        jcbCity.setEnabled(true);
     }//GEN-LAST:event_jbSelectActionPerformed
 
-    private void jcbStateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcbStateActionPerformed
-        
-    }//GEN-LAST:event_jcbStateActionPerformed
+    private void jbFindActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbFindActionPerformed
+        if (jcbState.getSelectedIndex() == 0 || jcbCity.getSelectedIndex() == 0) {
+            JOptionPane.showMessageDialog(this, "Select a state and city", "Warning", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
 
-    private void addItemChangeListener(){
+        City selectedCity = states.get((String) jcbState.getSelectedItem())
+                .getCity((String) jcbCity.getSelectedItem());
+
+        String[] dates = states.get((String) jcbState.getSelectedItem())
+                .getCity((String) jcbCity.getSelectedItem()).getDates();
+        
+        Arrays.sort(dates);
+        TableModel model = jtIndexes.getModel();
+        
+        int line = 0;
+        for (String date : dates) {
+
+            if (model.getRowCount() < dates.length) {
+                ((DefaultTableModel) model).addRow(new Object[]{date, (selectedCity.getIndex(date) * 100f)});
+            }
+            model.setValueAt(date, line, 0);
+            model.setValueAt((selectedCity.getIndex(date) * 100f), line, 1);
+            line++;
+
+        }
+
+
+    }//GEN-LAST:event_jbFindActionPerformed
+
+    private void addItemChangeListener() {
         jcbState.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent arg0) {
-               if(!((String)jcbState.getSelectedItem()).equals(selectedItem)){
-                   selectedItem = (String)jcbState.getSelectedItem();
-                   displayCities();
-                   System.out.println(selectedItem);
-               }                                               
+                if (jcbState.getSelectedIndex() == 0) {
+                    jcbCity.removeAllItems();
+                    jcbCity.addItem("Select");
+                    return;
+                } else if (!((String) jcbState.getSelectedItem()).equals(selectedItem)) {
+                    selectedItem = (String) jcbState.getSelectedItem();
+                    displayCities();
+                    System.out.println(selectedItem);
+                }
             }
         });
     }
-    
-    private void displayCities(){
-       jcbCity.removeAllItems();
-       jcbCity.addItem("Select");
-       for(String name : states.get(selectedItem).getCityNames()){
-           jcbCity.addItem(name);
-       }
-       
-    }
-    
-    /*
-    public static void shellSort(Integer[] nums) {
-        int gap = 1;
-        int n = nums.length;
-        boolean hasSwap = false;
 
-        while (gap < n) {
-            gap = gap * 3 + 1;
+    private void displayCities() {
+        jcbCity.removeAllItems();
+        jcbCity.addItem("Select");
+        Object[] cityName = states.get(selectedItem).getCityNames().toArray();
+        Arrays.sort(cityName);
+        for (Object name : cityName) {
+            jcbCity.addItem((String) name);
         }
 
-        gap = gap / 3;
-        int temp, j;
-
-        while (gap > 0) {
-            for (int i = gap; i < n; i++) {
-                temp = nums[i];
-                j = i;
-                while (j >= gap && nums[j - gap] > temp) {
-                    nums[j] = nums[j - gap];
-                    j = j - gap;
-;
-                    hasSwap = true;
-                }
-                nums[j] = temp;
-                if (hasSwap) {                   
-                    hasSwap = false;                    
-                }
-
-            }
-            gap = gap / 2;
-        }     
     }
-    */
-    
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
@@ -419,7 +445,6 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JButton jbClose;
     private javax.swing.JButton jbExport;
     private javax.swing.JButton jbFind;
@@ -427,6 +452,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> jcbCity;
     private javax.swing.JComboBox<String> jcbState;
     private javax.swing.JFileChooser jfcSelect;
+    private javax.swing.JTable jtIndexes;
     private javax.swing.JTextField jtfHighestIsolation;
     private javax.swing.JTextField jtfLowestIsolation;
     private javax.swing.JTextField jtfNumberCities;
