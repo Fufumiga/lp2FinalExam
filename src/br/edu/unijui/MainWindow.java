@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package br.edu.unijui;
 
 import java.awt.event.ItemEvent;
@@ -11,26 +6,22 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-/**
- *
- * @author USER
- */
 public class MainWindow extends javax.swing.JFrame {
 
-    HashMap<String, State> states;
-    String selectedItem = "Select";
+    private HashMap<String, State> states;
+    private String selectedState = "Select";
+    private String tableState;
+    private String tableCity;
 
     public MainWindow() {
         initComponents();
@@ -41,14 +32,14 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void restrictFileChooser() {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV files (*.csv)", "csv");
-        jfcSelect.setFileFilter(filter);
+        jfcChooser.setFileFilter(filter);
     }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jfcSelect = new javax.swing.JFileChooser();
+        jfcChooser = new javax.swing.JFileChooser();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jbSelect = new javax.swing.JButton();
@@ -192,10 +183,20 @@ public class MainWindow extends javax.swing.JFrame {
         jbExport.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         jbExport.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/disk.png"))); // NOI18N
         jbExport.setText("Export Data");
+        jbExport.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbExportActionPerformed(evt);
+            }
+        });
 
         jbClose.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         jbClose.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/cross.png"))); // NOI18N
         jbClose.setText("Close Application");
+        jbClose.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbCloseActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -207,6 +208,15 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGap(326, 326, 326))
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(40, 40, 40)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel9)
+                            .addComponent(jLabel10))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jtfHighestIsolation)
+                            .addComponent(jtfLowestIsolation)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(63, 63, 63)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -241,22 +251,13 @@ public class MainWindow extends javax.swing.JFrame {
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                             .addComponent(jcbState, 0, 277, Short.MAX_VALUE)
-                                            .addComponent(jcbCity, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jLabel10)
-                                    .addComponent(jLabel9))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jtfLowestIsolation)
-                                    .addComponent(jtfHighestIsolation))
-                                .addGap(374, 374, 374))))
+                                            .addComponent(jcbCity, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(309, 309, 309)
                         .addComponent(jbClose)
                         .addGap(55, 55, 55)
                         .addComponent(jbExport)))
-                .addContainerGap(42, Short.MAX_VALUE))
+                .addGap(42, 42, 42))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -308,7 +309,7 @@ public class MainWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jbSelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbSelectActionPerformed
-        int result = jfcSelect.showOpenDialog(this);
+        int result = jfcChooser.showOpenDialog(this);
         FileReader fileReader;
         BufferedReader bufferedReader;
         String line;
@@ -318,9 +319,8 @@ public class MainWindow extends javax.swing.JFrame {
             return;
         }
 
-        ArrayList<String> lines = new ArrayList<>();
         try {
-            File file = jfcSelect.getSelectedFile();
+            File file = jfcChooser.getSelectedFile();
             jtfSelectedFile.setText(file.getName());
 
             fileReader = new FileReader(file);
@@ -358,13 +358,19 @@ public class MainWindow extends javax.swing.JFrame {
             return;
         }
 
+        try {
+            bufferedReader.close();
+            fileReader.close();
+        } catch (IOException e) {
+            System.out.println("bbbbbbbbbb");
+        }
+
         Object[] stateNames = states.keySet().toArray();
         Arrays.sort(stateNames);
         for (Object stateName : stateNames) {
-            jcbState.addItem((String)stateName);
+            jcbState.addItem((String) stateName);
         }
-                
-                
+
         jtfSelectedFile.setEnabled(true);
         jtfNumberStates.setEnabled(true);
         jtfNumberStates.setText(Integer.toString(states.size()));
@@ -375,6 +381,9 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_jbSelectActionPerformed
 
     private void jbFindActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbFindActionPerformed
+        float highestIndex = 0f;
+        float lowestIndex = 100f;
+
         if (jcbState.getSelectedIndex() == 0 || jcbCity.getSelectedIndex() == 0) {
             JOptionPane.showMessageDialog(this, "Select a state and city", "Warning", JOptionPane.INFORMATION_MESSAGE);
             return;
@@ -385,10 +394,10 @@ public class MainWindow extends javax.swing.JFrame {
 
         String[] dates = states.get((String) jcbState.getSelectedItem())
                 .getCity((String) jcbCity.getSelectedItem()).getDates();
-        
+
         Arrays.sort(dates);
         TableModel model = jtIndexes.getModel();
-        
+
         int line = 0;
         for (String date : dates) {
 
@@ -398,11 +407,56 @@ public class MainWindow extends javax.swing.JFrame {
             model.setValueAt(date, line, 0);
             model.setValueAt((selectedCity.getIndex(date) * 100f), line, 1);
             line++;
-
         }
 
+        for (State state : states.values()) {
+            for (City city : state.getCities()) {
+                for (String date : city.getDates()) {
+                    float index = city.getIndex(date);
+                    if (index > highestIndex) {
+                        jtfHighestIsolation.setText(city.getName() + " / " + state.getName() + " ("
+                                + date + ")  " + highestIndex * 100 + "%.");
+                        highestIndex = index;
+                    } else if (index < lowestIndex) {
+                        jtfLowestIsolation.setText(city.getName() + " / " + state.getName() + " ("
+                                + date + ")  " + lowestIndex * 100 + "%.");
+                        lowestIndex = index;
+                    }
+                }
+            }
+        }
+
+        tableCity = selectedCity.getName();
+        tableState = selectedState;
+        jtfHighestIsolation.setEnabled(true);
+        jtfLowestIsolation.setEnabled(true);
 
     }//GEN-LAST:event_jbFindActionPerformed
+
+    private void jbCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbCloseActionPerformed
+        
+        int result = JOptionPane.showConfirmDialog(this, "Are you sure?", "Warning", JOptionPane.YES_NO_OPTION);
+        if (result == JOptionPane.YES_OPTION) 
+            System.exit(0);
+        else 
+            return;      
+        
+    }//GEN-LAST:event_jbCloseActionPerformed
+
+    private void jbExportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbExportActionPerformed
+        jfcChooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text file", "txt");
+        jfcChooser.setFileFilter(filter);
+        int result = jfcChooser.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+
+            File file = jfcChooser.getSelectedFile();
+            try {
+                saveData(file);
+            } catch (Exception e) {
+            }
+        }
+    }//GEN-LAST:event_jbExportActionPerformed
 
     private void addItemChangeListener() {
         jcbState.addItemListener(new ItemListener() {
@@ -412,10 +466,10 @@ public class MainWindow extends javax.swing.JFrame {
                     jcbCity.removeAllItems();
                     jcbCity.addItem("Select");
                     return;
-                } else if (!((String) jcbState.getSelectedItem()).equals(selectedItem)) {
-                    selectedItem = (String) jcbState.getSelectedItem();
+                } else if (!((String) jcbState.getSelectedItem()).equals(selectedState)) {
+                    selectedState = (String) jcbState.getSelectedItem();
                     displayCities();
-                    System.out.println(selectedItem);
+                    System.out.println(selectedState);
                 }
             }
         });
@@ -424,10 +478,38 @@ public class MainWindow extends javax.swing.JFrame {
     private void displayCities() {
         jcbCity.removeAllItems();
         jcbCity.addItem("Select");
-        Object[] cityName = states.get(selectedItem).getCityNames().toArray();
+        Object[] cityName = states.get(selectedState).getCityNames().toArray();
         Arrays.sort(cityName);
         for (Object name : cityName) {
             jcbCity.addItem((String) name);
+        }
+
+    }
+
+    private void saveData(File file) {
+        String filename = file.getAbsolutePath();
+        StringBuilder content = new StringBuilder();
+        int count = 1;
+        if (!filename.endsWith(".txt")) {
+            file = new File(filename + ".txt");
+        }
+
+        content.append(tableCity).append(" / ").append(tableState).append("\n").append("\n");
+
+        City city = states.get(tableState).getCity(tableCity);
+        for (String date : city.getDates()) {
+            content.append("[").append(Integer.toString(count)).append("]; ").
+                    append(date).append("; ").append(city.getIndex(date) * 100).append("% \n");
+            count++;
+        }
+
+        try {
+            FileWriter fileWriter = new FileWriter(file);
+            fileWriter.write(content.toString());
+            fileWriter.flush();
+            fileWriter.close();
+        } catch (IOException e) {
+            System.out.println("gosdogndfsokgsdf");
         }
 
     }
@@ -451,7 +533,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JButton jbSelect;
     private javax.swing.JComboBox<String> jcbCity;
     private javax.swing.JComboBox<String> jcbState;
-    private javax.swing.JFileChooser jfcSelect;
+    private javax.swing.JFileChooser jfcChooser;
     private javax.swing.JTable jtIndexes;
     private javax.swing.JTextField jtfHighestIsolation;
     private javax.swing.JTextField jtfLowestIsolation;
