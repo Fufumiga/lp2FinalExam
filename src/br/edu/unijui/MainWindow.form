@@ -43,8 +43,8 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jtfHighestIsolation" max="32767" attributes="0"/>
-                          <Component id="jtfLowestIsolation" max="32767" attributes="0"/>
+                          <Component id="jtfHighestIsolationCountry" max="32767" attributes="0"/>
+                          <Component id="jtfLowestIsolationCountry" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <Group type="102" attributes="0">
@@ -95,14 +95,15 @@
                           </Group>
                       </Group>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="309" max="-2" attributes="0"/>
-                      <Component id="jbClose" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="55" max="-2" attributes="0"/>
-                      <Component id="jbExport" min="-2" max="-2" attributes="0"/>
-                  </Group>
               </Group>
               <EmptySpace min="-2" pref="42" max="-2" attributes="0"/>
+          </Group>
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace min="-2" pref="299" max="-2" attributes="0"/>
+              <Component id="jbClose" min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="55" max="-2" attributes="0"/>
+              <Component id="jbExport" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -143,19 +144,19 @@
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel9" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jtfHighestIsolation" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jtfHighestIsolationCountry" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel10" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jtfLowestIsolation" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jtfLowestIsolationCountry" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jbClose" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jbExport" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="28" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -320,7 +321,7 @@
         <Property name="text" type="java.lang.String" value="Highest Isolation (Country):"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="jtfHighestIsolation">
+    <Component class="javax.swing.JTextField" name="jtfHighestIsolationCountry">
       <Properties>
         <Property name="enabled" type="boolean" value="false"/>
       </Properties>
@@ -333,7 +334,7 @@
         <Property name="text" type="java.lang.String" value="Lowest Isolation (Country):"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="jtfLowestIsolation">
+    <Component class="javax.swing.JTextField" name="jtfLowestIsolationCountry">
       <Properties>
         <Property name="enabled" type="boolean" value="false"/>
       </Properties>
@@ -347,6 +348,7 @@
           <Image iconType="3" name="/icons/disk.png"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Export Data"/>
+        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbExportActionPerformed"/>

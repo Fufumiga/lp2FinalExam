@@ -1,7 +1,6 @@
 package br.edu.unijui;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.HashMap;
 
 

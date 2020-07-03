@@ -8,8 +8,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.Collator;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -58,9 +61,9 @@ public class MainWindow extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jtIndexes = new javax.swing.JTable();
         jLabel9 = new javax.swing.JLabel();
-        jtfHighestIsolation = new javax.swing.JTextField();
+        jtfHighestIsolationCountry = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
-        jtfLowestIsolation = new javax.swing.JTextField();
+        jtfLowestIsolationCountry = new javax.swing.JTextField();
         jbExport = new javax.swing.JButton();
         jbClose = new javax.swing.JButton();
 
@@ -173,16 +176,17 @@ public class MainWindow extends javax.swing.JFrame {
         jLabel9.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         jLabel9.setText("Highest Isolation (Country):");
 
-        jtfHighestIsolation.setEnabled(false);
+        jtfHighestIsolationCountry.setEnabled(false);
 
         jLabel10.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         jLabel10.setText("Lowest Isolation (Country):");
 
-        jtfLowestIsolation.setEnabled(false);
+        jtfLowestIsolationCountry.setEnabled(false);
 
         jbExport.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         jbExport.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/disk.png"))); // NOI18N
         jbExport.setText("Export Data");
+        jbExport.setEnabled(false);
         jbExport.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbExportActionPerformed(evt);
@@ -215,8 +219,8 @@ public class MainWindow extends javax.swing.JFrame {
                             .addComponent(jLabel10))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jtfHighestIsolation)
-                            .addComponent(jtfLowestIsolation)))
+                            .addComponent(jtfHighestIsolationCountry)
+                            .addComponent(jtfLowestIsolationCountry)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(63, 63, 63)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -251,13 +255,14 @@ public class MainWindow extends javax.swing.JFrame {
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                             .addComponent(jcbState, 0, 277, Short.MAX_VALUE)
-                                            .addComponent(jcbCity, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(309, 309, 309)
-                        .addComponent(jbClose)
-                        .addGap(55, 55, 55)
-                        .addComponent(jbExport)))
+                                            .addComponent(jcbCity, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))))
                 .addGap(42, 42, 42))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(299, 299, 299)
+                .addComponent(jbClose)
+                .addGap(55, 55, 55)
+                .addComponent(jbExport)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -292,16 +297,16 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9)
-                    .addComponent(jtfHighestIsolation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jtfHighestIsolationCountry, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel10)
-                    .addComponent(jtfLowestIsolation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(jtfLowestIsolationCountry, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jbClose)
                     .addComponent(jbExport))
-                .addContainerGap(28, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         pack();
@@ -395,32 +400,40 @@ public class MainWindow extends javax.swing.JFrame {
         String[] dates = states.get((String) jcbState.getSelectedItem())
                 .getCity((String) jcbCity.getSelectedItem()).getDates();
 
-        Arrays.sort(dates);
+        Arrays.sort(dates, Collections.reverseOrder());
         TableModel model = jtIndexes.getModel();
 
         int line = 0;
         for (String date : dates) {
+            float index = selectedCity.getIndex(date);
 
             if (model.getRowCount() < dates.length) {
-                ((DefaultTableModel) model).addRow(new Object[]{date, (selectedCity.getIndex(date) * 100f)});
-            }
-            model.setValueAt(date, line, 0);
-            model.setValueAt((selectedCity.getIndex(date) * 100f), line, 1);
+                ((DefaultTableModel) model).addRow(new Object[]{date, (index * 100f)});
+            } 
+            
+                model.setValueAt(date, line, 0);
+                model.setValueAt((index * 100f), line, 1);
+            
             line++;
+            
         }
 
-        for (State state : states.values()) {
-            for (City city : state.getCities()) {
-                for (String date : city.getDates()) {
-                    float index = city.getIndex(date);
-                    if (index > highestIndex) {
-                        jtfHighestIsolation.setText(city.getName() + " / " + state.getName() + " ("
-                                + date + ")  " + highestIndex * 100 + "%.");
-                        highestIndex = index;
-                    } else if (index < lowestIndex) {
-                        jtfLowestIsolation.setText(city.getName() + " / " + state.getName() + " ("
-                                + date + ")  " + lowestIndex * 100 + "%.");
-                        lowestIndex = index;
+        if (jtfHighestIsolationCountry.getText().equals("") && jtfLowestIsolationCountry.getText().equals("")) {
+            highestIndex = 0;
+            lowestIndex = 100;
+            for (State state : states.values()) {
+                for (City city : state.getCities()) {
+                    for (String date : city.getDates()) {
+                        float index = city.getIndex(date);
+                        if (index > highestIndex) {
+                            jtfHighestIsolationCountry.setText(city.getName() + " / " + state.getName() + " ("
+                                    + date + ")  " + highestIndex * 100 + "%.");
+                            highestIndex = index;
+                        } else if (index < lowestIndex) {
+                            jtfLowestIsolationCountry.setText(city.getName() + " / " + state.getName() + " ("
+                                    + date + ")  " + lowestIndex * 100 + "%.");
+                            lowestIndex = index;
+                        }
                     }
                 }
             }
@@ -428,19 +441,21 @@ public class MainWindow extends javax.swing.JFrame {
 
         tableCity = selectedCity.getName();
         tableState = selectedState;
-        jtfHighestIsolation.setEnabled(true);
-        jtfLowestIsolation.setEnabled(true);
+        jtfHighestIsolationCountry.setEnabled(true);
+        jtfLowestIsolationCountry.setEnabled(true);
+        jbExport.setEnabled(true);
 
     }//GEN-LAST:event_jbFindActionPerformed
 
     private void jbCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbCloseActionPerformed
-        
+
         int result = JOptionPane.showConfirmDialog(this, "Are you sure?", "Warning", JOptionPane.YES_NO_OPTION);
-        if (result == JOptionPane.YES_OPTION) 
+        if (result == JOptionPane.YES_OPTION) {
             System.exit(0);
-        else 
-            return;      
-        
+        } else {
+            return;
+        }
+
     }//GEN-LAST:event_jbCloseActionPerformed
 
     private void jbExportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbExportActionPerformed
@@ -454,6 +469,7 @@ public class MainWindow extends javax.swing.JFrame {
             try {
                 saveData(file);
             } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "An error has ocurred, please try again.", "Eroor", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_jbExportActionPerformed
@@ -476,10 +492,12 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     private void displayCities() {
+        Collator collator = Collator.getInstance(new Locale("pt", "BR"));
+        collator.setStrength(Collator.PRIMARY);
         jcbCity.removeAllItems();
         jcbCity.addItem("Select");
         Object[] cityName = states.get(selectedState).getCityNames().toArray();
-        Arrays.sort(cityName);
+        Arrays.sort(cityName, collator);
         for (Object name : cityName) {
             jcbCity.addItem((String) name);
         }
@@ -535,8 +553,8 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> jcbState;
     private javax.swing.JFileChooser jfcChooser;
     private javax.swing.JTable jtIndexes;
-    private javax.swing.JTextField jtfHighestIsolation;
-    private javax.swing.JTextField jtfLowestIsolation;
+    private javax.swing.JTextField jtfHighestIsolationCountry;
+    private javax.swing.JTextField jtfLowestIsolationCountry;
     private javax.swing.JTextField jtfNumberCities;
     private javax.swing.JTextField jtfNumberStates;
     private javax.swing.JTextField jtfSelectedFile;
