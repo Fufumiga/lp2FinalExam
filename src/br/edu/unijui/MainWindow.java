@@ -66,6 +66,10 @@ public class MainWindow extends javax.swing.JFrame {
         jtfLowestIsolationCountry = new javax.swing.JTextField();
         jbExport = new javax.swing.JButton();
         jbClose = new javax.swing.JButton();
+        jtfLowestIsolationCity = new javax.swing.JTextField();
+        jLabel11 = new javax.swing.JLabel();
+        jtfHighestIsolationCity = new javax.swing.JTextField();
+        jLabel12 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("COVID-19 Isolation Index System");
@@ -202,6 +206,16 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
 
+        jtfLowestIsolationCity.setEnabled(false);
+
+        jLabel11.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        jLabel11.setText("Highest Isolation (City):");
+
+        jtfHighestIsolationCity.setEnabled(false);
+
+        jLabel12.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        jLabel12.setText("Lowest Isolation (City):");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -216,11 +230,15 @@ public class MainWindow extends javax.swing.JFrame {
                         .addGap(40, 40, 40)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel9)
-                            .addComponent(jLabel10))
+                            .addComponent(jLabel10)
+                            .addComponent(jLabel11)
+                            .addComponent(jLabel12))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jtfHighestIsolationCountry)
-                            .addComponent(jtfLowestIsolationCountry)))
+                            .addComponent(jtfLowestIsolationCountry)
+                            .addComponent(jtfLowestIsolationCity)
+                            .addComponent(jtfHighestIsolationCity)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(63, 63, 63)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -302,7 +320,15 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel10)
                     .addComponent(jtfLowestIsolationCountry, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel11)
+                    .addComponent(jtfHighestIsolationCity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel12)
+                    .addComponent(jtfLowestIsolationCity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jbClose)
                     .addComponent(jbExport))
@@ -335,7 +361,7 @@ public class MainWindow extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "File not found/invalid", "Error", JOptionPane.ERROR);
             return;
         }
-
+        long start = System.currentTimeMillis();
         try {
 
             while ((line = bufferedReader.readLine()) != null) {
@@ -348,18 +374,16 @@ public class MainWindow extends javax.swing.JFrame {
 
                 State state = states.get(words[0]);
                 if (!state.hasCity(words[1])) {
-                    City city = new City(words[1]);
-                    city.addIndex(words[3], Float.parseFloat(words[2]));
                     state.addCity(new City(words[1]));
                     cityCount++;
-                } else {
-                    state.getCity(words[1]).addIndex(words[3], Float.parseFloat(words[2]));
                 }
+                    state.getCity(words[1]).addIndex(words[3], Float.parseFloat(words[2]));
+                
 
             }
 
         } catch (IOException ex) {
-            System.out.println("aaaaaaaaaaaaa");
+            JOptionPane.showMessageDialog(this, "Error while trying to read the file. Try again.", "Error", JOptionPane.ERROR);
             return;
         }
 
@@ -375,6 +399,9 @@ public class MainWindow extends javax.swing.JFrame {
         for (Object stateName : stateNames) {
             jcbState.addItem((String) stateName);
         }
+        
+        long end = System.currentTimeMillis();
+        System.out.println("Load Time: "+ (end - start));
 
         jtfSelectedFile.setEnabled(true);
         jtfNumberStates.setEnabled(true);
@@ -386,9 +413,8 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_jbSelectActionPerformed
 
     private void jbFindActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbFindActionPerformed
-        float highestIndex = 0f;
-        float lowestIndex = 100f;
-
+        
+        long start = System.currentTimeMillis();
         if (jcbState.getSelectedIndex() == 0 || jcbCity.getSelectedIndex() == 0) {
             JOptionPane.showMessageDialog(this, "Select a state and city", "Warning", JOptionPane.INFORMATION_MESSAGE);
             return;
@@ -402,22 +428,30 @@ public class MainWindow extends javax.swing.JFrame {
 
         Arrays.sort(dates, Collections.reverseOrder());
         TableModel model = jtIndexes.getModel();
-
+        ((DefaultTableModel)model).setRowCount(0);
         int line = 0;
+        float highestIndex = 0f;
+        float lowestIndex = 100f;
         for (String date : dates) {
             float index = selectedCity.getIndex(date);
 
-            if (model.getRowCount() < dates.length) {
                 ((DefaultTableModel) model).addRow(new Object[]{date, (index * 100f)});
-            } 
-            
-                model.setValueAt(date, line, 0);
-                model.setValueAt((index * 100f), line, 1);
+ 
             
             line++;
+            if(index > highestIndex){
+                jtfHighestIsolationCity.setText("(" + date + ")" + " - " + index*100 + "%");
+                highestIndex = index;
+            }
+            if (index < lowestIndex){
+                jtfLowestIsolationCity.setText("(" + date + ")" + " - " + index*100 + "%");
+                lowestIndex = index;
+            }
             
         }
 
+        highestIndex = 0f;
+        lowestIndex = 100f;
         if (jtfHighestIsolationCountry.getText().equals("") && jtfLowestIsolationCountry.getText().equals("")) {
             highestIndex = 0;
             lowestIndex = 100;
@@ -425,24 +459,27 @@ public class MainWindow extends javax.swing.JFrame {
                 for (City city : state.getCities()) {
                     for (String date : city.getDates()) {
                         float index = city.getIndex(date);
+                        
                         if (index > highestIndex) {
                             jtfHighestIsolationCountry.setText(city.getName() + " / " + state.getName() + " ("
-                                    + date + ")  " + highestIndex * 100 + "%.");
+                                    + date + ")  " + index * 100 + "%.");
                             highestIndex = index;
                         } else if (index < lowestIndex) {
                             jtfLowestIsolationCountry.setText(city.getName() + " / " + state.getName() + " ("
-                                    + date + ")  " + lowestIndex * 100 + "%.");
+                                    + date + ")  " + index * 100 + "%.");
                             lowestIndex = index;
                         }
                     }
                 }
             }
         }
-
+        System.out.println(selectedCity.getDates().length);
         tableCity = selectedCity.getName();
         tableState = selectedState;
         jtfHighestIsolationCountry.setEnabled(true);
         jtfLowestIsolationCountry.setEnabled(true);
+        jtfHighestIsolationCity.setEnabled(true);
+        jtfLowestIsolationCity.setEnabled(true);
         jbExport.setEnabled(true);
 
     }//GEN-LAST:event_jbFindActionPerformed
@@ -536,6 +573,8 @@ public class MainWindow extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -553,7 +592,9 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> jcbState;
     private javax.swing.JFileChooser jfcChooser;
     private javax.swing.JTable jtIndexes;
+    private javax.swing.JTextField jtfHighestIsolationCity;
     private javax.swing.JTextField jtfHighestIsolationCountry;
+    private javax.swing.JTextField jtfLowestIsolationCity;
     private javax.swing.JTextField jtfLowestIsolationCountry;
     private javax.swing.JTextField jtfNumberCities;
     private javax.swing.JTextField jtfNumberStates;
