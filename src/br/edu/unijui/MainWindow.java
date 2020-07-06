@@ -377,8 +377,7 @@ public class MainWindow extends javax.swing.JFrame {
                     state.addCity(new City(words[1]));
                     cityCount++;
                 }
-                    state.getCity(words[1]).addIndex(words[3], Float.parseFloat(words[2]));
-                
+                state.getCity(words[1]).addIndex(words[3], Float.parseFloat(words[2]));
 
             }
 
@@ -399,9 +398,9 @@ public class MainWindow extends javax.swing.JFrame {
         for (Object stateName : stateNames) {
             jcbState.addItem((String) stateName);
         }
-        
+
         long end = System.currentTimeMillis();
-        System.out.println("Load Time: "+ (end - start));
+        System.out.println("Load Time: " + (end - start));
 
         jtfSelectedFile.setEnabled(true);
         jtfNumberStates.setEnabled(true);
@@ -413,8 +412,7 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_jbSelectActionPerformed
 
     private void jbFindActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbFindActionPerformed
-        
-        long start = System.currentTimeMillis();
+
         if (jcbState.getSelectedIndex() == 0 || jcbCity.getSelectedIndex() == 0) {
             JOptionPane.showMessageDialog(this, "Select a state and city", "Warning", JOptionPane.INFORMATION_MESSAGE);
             return;
@@ -427,52 +425,32 @@ public class MainWindow extends javax.swing.JFrame {
                 .getCity((String) jcbCity.getSelectedItem()).getDates();
 
         Arrays.sort(dates, Collections.reverseOrder());
-        TableModel model = jtIndexes.getModel();
-        ((DefaultTableModel)model).setRowCount(0);
+
+        DefaultTableModel model = (DefaultTableModel) jtIndexes.getModel();
+        model.setRowCount(0);
+
         int line = 0;
         float highestIndex = 0f;
         float lowestIndex = 100f;
         for (String date : dates) {
             float index = selectedCity.getIndex(date);
 
-                ((DefaultTableModel) model).addRow(new Object[]{date, (index * 100f)});
- 
-            
+            model.addRow(new Object[]{date, (index * 100f)});
+
             line++;
-            if(index > highestIndex){
-                jtfHighestIsolationCity.setText("(" + date + ")" + " - " + index*100 + "%");
+            
+            if (index > highestIndex) {
+                jtfHighestIsolationCity.setText("(" + date + ")" + " - " + index * 100 + "%");
                 highestIndex = index;
             }
-            if (index < lowestIndex){
-                jtfLowestIsolationCity.setText("(" + date + ")" + " - " + index*100 + "%");
+            if (index < lowestIndex) {
+                jtfLowestIsolationCity.setText("(" + date + ")" + " - " + index * 100 + "%");
                 lowestIndex = index;
             }
-            
         }
 
-        highestIndex = 0f;
-        lowestIndex = 100f;
-        if (jtfHighestIsolationCountry.getText().equals("") && jtfLowestIsolationCountry.getText().equals("")) {
-            highestIndex = 0;
-            lowestIndex = 100;
-            for (State state : states.values()) {
-                for (City city : state.getCities()) {
-                    for (String date : city.getDates()) {
-                        float index = city.getIndex(date);
-                        
-                        if (index > highestIndex) {
-                            jtfHighestIsolationCountry.setText(city.getName() + " / " + state.getName() + " ("
-                                    + date + ")  " + index * 100 + "%.");
-                            highestIndex = index;
-                        } else if (index < lowestIndex) {
-                            jtfLowestIsolationCountry.setText(city.getName() + " / " + state.getName() + " ("
-                                    + date + ")  " + index * 100 + "%.");
-                            lowestIndex = index;
-                        }
-                    }
-                }
-            }
-        }
+        findCountryHighestLowestIsoation();
+
         System.out.println(selectedCity.getDates().length);
         tableCity = selectedCity.getName();
         tableState = selectedState;
@@ -521,14 +499,14 @@ public class MainWindow extends javax.swing.JFrame {
                     return;
                 } else if (!((String) jcbState.getSelectedItem()).equals(selectedState)) {
                     selectedState = (String) jcbState.getSelectedItem();
-                    displayCities();
+                    displayComboboxCities();
                     System.out.println(selectedState);
                 }
             }
         });
     }
 
-    private void displayCities() {
+    private void displayComboboxCities() {
         Collator collator = Collator.getInstance(new Locale("pt", "BR"));
         collator.setStrength(Collator.PRIMARY);
         jcbCity.removeAllItems();
@@ -541,6 +519,33 @@ public class MainWindow extends javax.swing.JFrame {
 
     }
 
+    private void findCountryHighestLowestIsoation() {
+        float highestIndex = 0f;
+        float lowestIndex = 100f;
+        if (jtfHighestIsolationCountry.getText().equals("") && jtfLowestIsolationCountry.getText().equals("")) {
+            highestIndex = 0;
+            lowestIndex = 100;
+            for (State state : states.values()) {
+                for (City city : state.getCities()) {
+                    for (String date : city.getDates()) {
+                        float index = city.getIndex(date);
+
+                        if (index > highestIndex) {
+                            jtfHighestIsolationCountry.setText(city.getName() + " / " + state.getName() + " ("
+                                    + date + ")  " + index * 100 + "%.");
+                            highestIndex = index;
+                        } else if (index < lowestIndex) {
+                            jtfLowestIsolationCountry.setText(city.getName() + " / " + state.getName() + " ("
+                                    + date + ")  " + index * 100 + "%.");
+                            lowestIndex = index;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    
     private void saveData(File file) {
         String filename = file.getAbsolutePath();
         StringBuilder content = new StringBuilder();
